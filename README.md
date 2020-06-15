@@ -23,34 +23,34 @@ This discount is applied only for first 3 cash out operations per week for each 
 Commission fee - 0.3% from amount, but not less than 0.50 EUR for operation.
 **Currency for Commission Fee**
 
-Commission fee is always calculated in the currency of particular operation (for example, if you cash out USD, commission fee is also in USD).
+Commission fee is always calculated in the currency of particular operation (for example, if you cash out `USD`, commission fee is also in `USD`).
 **Rounding**
 
-After calculating commission fee, it's rounded to the smallest currency item (for example, for EUR currency - cents) to upper bound (ceiled). For example, 0.023 EUR should be rounded to 3 Euro cents.
+After calculating commission fee, it's rounded to the smallest currency item (for example, for `EUR` currency - cents) to upper bound (ceiled). For example, `0.023 EUR` should be rounded to `3` Euro cents.
 
 Rounding is performed after currency conversion.
 # Supported currencies
 
-3 currencies are supported: EUR, USD and JPY.
+3 currencies are supported: `EUR`, `USD` and `JPY`.
 
-When converting currencies, following conversion rates are applied: EUR:USD - 1:1.1497, EUR:JPY - 1:129.53
+When converting currencies, following conversion rates are applied: `EUR:USD` - `1:1.1497`, `EUR:JPY` - `1:129.53`
 # Input data
 
 Input data is given in CSV file. Performed operations are given in that file. In each line following data is provided:
 
-   - operation date in format Y-m-d
+   - operation date in format `Y-m-d`
    - user's identificator, number
-   - user's type, one of natural or legal
-   -  operation type, one of cash_in or cash_out
-   -  operation amount (for example 2.12 or 3)
-   -  operation currency, one of EUR, USD, JPY
+   - user's type, one of `natural` or `legal`
+   -  operation type, one of `cash_in` or `cash_out`
+   -  operation amount (for example `2.12` or `3`)
+   -  operation currency, one of `EUR`, `USD`, `JPY`
 
 All operations are ordered by their date ascendingly.
 # Expected Result
 
 As a single argument program must accept a path to the input file.
 
-Program must output result to stdout.
+Program must output result to `stdout`.
 
 Result - calculated commission fees for each operation. In each line only final calculated commission fee must be provided without currency.
 
