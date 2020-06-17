@@ -30,11 +30,6 @@ class User extends Controller
         $this->id = $id;
     }
 
-    // public function getId(): int
-    // {
-    //     return $this->id;
-    // }
-
     public function setUserType(string $user_type)
     {
         $user_types = ['legal', 'natural'];
@@ -44,11 +39,6 @@ class User extends Controller
         }
 
         $this->user_type = $user_type;
-    }
-
-    public function getUserType(): string
-    {
-        return $this->user_type;
     }
 
     public function isLegal(): bool
@@ -95,11 +85,6 @@ class User extends Controller
         }
 
         $this->currency = $currency;
-    }
-
-    public function getCurrency(): string
-    {
-        return $this->currency;
     }
 
     public function addToCashOutCount()

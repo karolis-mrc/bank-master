@@ -25,7 +25,7 @@ foreach ($csv as $row) {
         if (array_key_exists($id, $user_data)) {
             $inArray = true;
             break;
-            }
+        }
     }
     if (!$inArray) {
         $user_data[$id] =  new User($id, $user_type);
