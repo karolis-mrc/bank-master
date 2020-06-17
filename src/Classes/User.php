@@ -30,10 +30,10 @@ class User extends Controller
         $this->id = $id;
     }
 
-    public function getId(): int
-    {
-        return $this->id;
-    }
+    // public function getId(): int
+    // {
+    //     return $this->id;
+    // }
 
     public function setUserType(string $user_type)
     {
