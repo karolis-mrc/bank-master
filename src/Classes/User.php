@@ -23,9 +23,7 @@ class User extends Controller
 
     public function setId(int $id)
     {
-        if (!is_numeric($id)) {
-            throw new \InvalidArgumentException('ID should be numeric.');
-        } elseif ($id < 0) {
+        if ($id < 0) {
             throw new \InvalidArgumentException('ID should be zero and greater.');
         }
 
