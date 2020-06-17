@@ -15,10 +15,10 @@ class User extends Controller
 
     public function __construct(int $id, string $user_type)
     {
-        $this->setId($id);
-        $this->setUserType($user_type);
-        $this->setCashOutCount(0);
-        $this->setCashPerWeek('0.00');
+        $this->id = $id;
+        $this->user_type = $user_type;
+        $this->cash_out_count = 0;
+        $this->cash_per_week = '0.00';
     }
 
     public function setId(int $id)
@@ -55,11 +55,7 @@ class User extends Controller
 
     public function isLegal(): bool
     {
-        if ($this->user_type === 'legal') {
-            return true;
-        } else {
-            return false;
-        }
+        return $this->user_type === 'legal';
     }
 
     public function setCashOutCount(int $cash_out_count)
