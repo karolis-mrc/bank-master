@@ -1,7 +1,8 @@
 <?php
+
 use Bank\CommissionTask\Classes\User as User;
 
-include 'index.php';
+require 'vendor/autoload.php';
 
 $handle = fopen($argv[1], "r");
 if ($handle) {
