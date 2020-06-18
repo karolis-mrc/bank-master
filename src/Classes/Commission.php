@@ -15,58 +15,52 @@ class Commission
 
     public function __construct()
     {
-        $this->cash_in_fee = '0.0003';
-        $this->cash_in_fee_max = '5.00';
-        $this->cash_out_limit = '1000';
+        $this->cash_in_fee = 0.0003;
+        $this->cash_in_fee_max = 5.00;
+        $this->cash_out_limit = 1000;
         $this->cash_out_count_limit = 3;
-        $this->cash_out_fee = '0.003';
-        $this->cash_out_fee_min = '0.5';
+        $this->cash_out_fee = 0.003;
+        $this->cash_out_fee_min = 0.5;
     }
 
-    public function setCashInFee(string $cash_in_fee)
+    public function setCashInFee(int $cash_in_fee)
     {
-        if (!is_numeric($cash_in_fee)) {
-            throw new \InvalidArgumentException('Cash in fee should be numeric.');
-        } elseif (intval($cash_in_fee) < 0) {
+        if (intval($cash_in_fee) < 0) {
             throw new \InvalidArgumentException('Cash in fee should be zero or greater.');
         }
 
         $this->cash_in_fee = $cash_in_fee;
     }
 
-    public function getCashInFee(): string
+    public function getCashInFee(): int
     {
         return $this->cash_in_fee;
     }
 
-    public function setCashInFeeMax(string $cash_in_fee_max)
+    public function setCashInFeeMax(int $cash_in_fee_max)
     {
-        if (!is_numeric($cash_in_fee_max)) {
-            throw new \InvalidArgumentException('Maximum of cash in fee should be numeric.');
-        } elseif (intval($cash_in_fee_max) < 0) {
+        if (intval($cash_in_fee_max) < 0) {
             throw new \InvalidArgumentException('Maximum of cash in fee should be zero or greater.');
         }
 
         $this->cash_in_fee_max = $cash_in_fee_max;
     }
 
-    public function getCashInFeeMax(): string
+    public function getCashInFeeMax(): int
     {
         return $this->cash_in_fee_max;
     }
 
-    public function setCashOutLimit(string $cash_out_limit)
+    public function setCashOutLimit(int $cash_out_limit)
     {
-        if (!is_numeric($cash_out_limit)) {
-            throw new \InvalidArgumentException('The limit of cash out money amount should be numeric.');
-        } elseif (intval($cash_out_limit) < 0) {
+        if (intval($cash_out_limit) < 0) {
             throw new \InvalidArgumentException('The limit of cash out money amount should be zero or greater.');
         }
 
         $this->cash_out_limit = $cash_out_limit;
     }
 
-    public function getCashOutLimit(): string
+    public function getCashOutLimit(): int
     {
         return $this->cash_out_limit;
     }
@@ -85,34 +79,30 @@ class Commission
         return $this->cash_out_count_limit;
     }
 
-    public function setCashOutFee(string $cash_out_fee)
+    public function setCashOutFee(int $cash_out_fee)
     {
-        if (!is_numeric($cash_out_fee)) {
-            throw new \InvalidArgumentException('Cash out fee should be numeric.');
-        } elseif (intval($cash_out_fee) < 0) {
+        if (intval($cash_out_fee) < 0) {
             throw new \InvalidArgumentException('Cash out fee should be zero or greater.');
         }
 
         $this->cash_out_fee = $cash_out_fee;
     }
 
-    public function getCashOutFee(): string
+    public function getCashOutFee(): int
     {
         return $this->cash_out_fee;
     }
 
-    public function setCashOutFeeMin(string $cash_out_fee_min)
+    public function setCashOutFeeMin(int $cash_out_fee_min)
     {
-        if (!is_numeric($cash_out_fee_min)) {
-            throw new \InvalidArgumentException('The minimal cash out fee should be numeric.');
-        } elseif (intval($cash_out_fee_min) < 0) {
+        if (intval($cash_out_fee_min) < 0) {
             throw new \InvalidArgumentException('The minimal cash out fee should be zero or greater.');
         }
 
         $this->cash_out_fee_min = $cash_out_fee_min;
     }
 
-    public function getCashOutFeeMin(): string
+    public function getCashOutFeeMin(): int
     {
         return $this->cash_out_fee_min;
     }
