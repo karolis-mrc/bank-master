@@ -82,9 +82,9 @@ class Controller
         }
     }
 
-    public function operate(string $operation_type, string $amount, string $currency, string $date): string
+    public function operate(string $operation_type, int $amount, string $currency, string $date)
     {
-        /**
+         /**
          *  @ Operation type is whether 'cash_in' or 'cash_out'.
          *  @ Amount is the cash number that is used in operation.
          *  @ Currency is the currency of operation.
@@ -95,83 +95,54 @@ class Controller
             throw new \InvalidArgumentException("Wrong type of operation, should be either 'cash_in' or 'cash_out'.");
         }
 
-        if (!is_numeric($amount) || intval($amount) <= 0) {
+        if ($amount <= 0) {
             throw new \InvalidArgumentException('Amount of money should be numeric, more than zero and without any letters');
-        }
-
-        $currency_array = ['EUR', 'USD', 'JPY'];
-        if (!in_array($currency, $currency_array, true)) {
-            throw new \InvalidArgumentException("There is only three currency types available and it should be entered as 'EUR', 'USD' OR 'JPY'.");
         }
 
         if (!$this->dateCheck($date)) {
             throw new \InvalidArgumentException('Wrong date input or format');
         }
-
-        $converter = new Converter();
-
-        /*
-         *  @ This switch depending on type of currency decides if it should use the converter and then
-         *    depending on operation type, decides wich method to use 'addCash' or 'takeCash'.
-         *    These methods return counted commission fee, then switch rounds it up and returns in format
-         *    of string with scale 2 decimal.
-         *  @ In JPY case fee is casted into string without formating after round up, as JPY smallest monetary unit
-         *    is 1 JPY.
-         */
-        switch ($currency) {
-            case 'EUR':
-                $amount = $amount;
-                ($operation_type === 'cash_in') ?
-                    $commission_fee = $this->addCash($amount) :
-                    $commission_fee = $this->takeCash($amount, $date);
-                $commission_fee = ceil($commission_fee * 100) / 100;
-                $commission_fee = number_format($commission_fee, 2, '.', '');
+        
+        switch ($operation_type) {
+            case 'cash_in':
+                $commission_fee = $this->countCashInCommission($amount, $currency);
                 break;
-            case 'USD':
-                $amount = $converter->usdToEur($amount);
-                ($operation_type === 'cash_in') ?
-                    $commission_fee = $this->addCash($amount) :
-                    $commission_fee = $this->takeCash($amount, $date);
-                $commission_fee = ceil($converter->eurToUsd($commission_fee) * 100) / 100;
-                $commission_fee = number_format($commission_fee, 2, '.', '');
-            break;
-            case 'JPY':
-                $amount = $converter->jpyToEur($amount);
-                ($operation_type === 'cash_in') ?
-                    $commission_fee = $this->addCash($amount) :
-                    $commission_fee = $this->takeCash($amount, $date);
-                $commission_fee = (string) ceil($converter->eurToJpy($commission_fee));
+
+            case 'cash_out':
+                $commission_fee = $this->countCashOutCommission($amount, $currency, $date);
                 break;
+            
             default:
-                throw new \InvalidArgumentException();
+                throw new \InvalidArgumentException("Operation type should be 'cash_in' or 'cash_out'.");
+                break;
         }
 
-        return $commission_fee;
+        return number_format(ceil($commission_fee * 100) / 100, 2, '.', '');
     }
 
-    public function addCash(string $amount): string
+    public function countCashInCommission(int $amount, string $currency)
     {
-        $commission = new Commission();
         $math = new Math(4);
+        $commission = new Commission();
+        $currency_rate = new Rate($currency);
+        $rate = $currency_rate->getRate();
 
-        $cash_in_commission = $math->multiply($amount, $commission->cash_in_fee);
+        $amount_in_eur = $math->divide((string) $amount, (string) $rate);
 
-        if ($cash_in_commission > $commission->cash_in_fee_max) {
-            $cash_in_commission = $commission->cash_in_fee_max;
-        }
+        $cash_in_commission_eur = $math->multiply($amount_in_eur, (string) $commission->cash_in_fee);
+
+            if ($cash_in_commission_eur > $commission->cash_in_fee_max) {
+                $cash_in_commission_eur = $commission->cash_in_fee_max;
+            }
+        
+        $cash_in_commission = $math->multiply($cash_in_commission_eur, (string) $rate);
 
         return $cash_in_commission;
     }
 
-    public function takeCash(string $amount, string $date): string
+    public function countCashOutCommission(int $amount, string $currency, string $date)
     {
-        $converter = new Converter();
-        $commission = new Commission();
-
-        /*
-         *  @ This if statement compares present operation and last operation dates and in case they differ, rests
-         *    users operation counts and users cash per week accumulation.
-         */
+        
         if ($this->operationWeeksDiffer($date)) {
             $this->setOperationWeek($this->getOperationWeekNumber($date));
             $this->setLastOperationWeek($date);
@@ -180,49 +151,61 @@ class Controller
         }
 
         if (!$this->isLegal()) {
-            $cash_out_commission = $this->countNaturalCashoutCommission($amount);
+            $cash_out_commission = $this->countNaturalCashoutCommission($amount, $currency);
         } else {
-            $cash_out_commission = $this->countLegalCashoutCommission($amount);
+            $cash_out_commission = $this->countLegalCashoutCommission($amount, $currency);
         }
-
-        $this->addToCashOutCount();
-        $this->addToCashPerWeek($amount);
 
         return $cash_out_commission;
     }
 
-    public function countNaturalCashoutCommission(string $amount): string
+    public function countNaturalCashoutCommission(int $amount, string $currency)
     {
         $commission = new Commission();
         $math = new Math(4);
+        $currency_rate = new Rate($currency);
+        $rate = $currency_rate->getRate();
 
-        $user_cash_per_week = $this->getCashPerWeek();
+        $amount_in_eur = $math->divide((string) $amount, (string) $rate);
+
+        $user_cash_per_week = (string) $this->getCashPerWeek();
         $user_cash_out_count = $this->getCashOutCount();
 
         if ($user_cash_per_week > $commission->cash_out_limit) {
-            $cash_out_commission = $math->multiply($amount, $commission->cash_out_fee);
+            $cash_out_commission = $math->multiply($amount_in_eur, $commission->cash_out_fee);
         } elseif ($user_cash_out_count >= $commission->cash_out_count_limit) {
-            $cash_out_commission = $math->multiply($amount, $commission->cash_out_fee);
-        } elseif ($user_cash_per_week + $amount > $commission->cash_out_limit) {
-            $commission_part = $math->subtract($math->add($amount, $user_cash_per_week), $commission->cash_out_limit);
+            $cash_out_commission = $math->multiply($amount_in_eur, $commission->cash_out_fee);
+        } elseif ($user_cash_per_week + $amount_in_eur > $commission->cash_out_limit) {
+            $commission_part = $math->subtract($math->add($amount_in_eur, $user_cash_per_week), $commission->cash_out_limit);
             $cash_out_commission = $math->multiply($commission_part, $commission->cash_out_fee);
         } else {
             $cash_out_commission = '0.00';
         }
 
+        $this->addToCashOutCount();
+        $this->addToCashPerWeek($amount_in_eur);
+
+        $cash_out_commission = $math->multiply($cash_out_commission, (string) $rate);
+
         return $cash_out_commission;
     }
 
-    public function countLegalCashoutCommission(string $amount): string
+    public function countLegalCashoutCommission(int $amount, string $currency)
     {
         $commission = new Commission();
         $math = new Math(4);
+        $currency_rate = new Rate($currency);
+        $rate = $currency_rate->getRate();
 
-        $cash_out_commission = $math->multiply($amount, $commission->cash_out_fee);
+        $amount_in_eur = $math->divide((string) $amount, (string) $rate);
+
+        $cash_out_commission = $math->multiply($amount_in_eur, $commission->cash_out_fee);
 
         if ($cash_out_commission < $commission->cash_out_fee_min) {
             $cash_out_commission = $commission->cash_out_fee_min;
         }
+
+        $cash_out_commission = $math->multiply($cash_out_commission, (string) $rate);
 
         return $cash_out_commission;
     }

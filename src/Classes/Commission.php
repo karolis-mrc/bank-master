@@ -15,12 +15,12 @@ class Commission
 
     public function __construct()
     {
-        $this->cash_in_fee = 0.0003;
-        $this->cash_in_fee_max = 5.00;
-        $this->cash_out_limit = 1000;
+        $this->cash_in_fee = '0.0003';
+        $this->cash_in_fee_max = '5.00';
+        $this->cash_out_limit = '1000';
         $this->cash_out_count_limit = 3;
-        $this->cash_out_fee = 0.003;
-        $this->cash_out_fee_min = 0.5;
+        $this->cash_out_fee = '0.003';
+        $this->cash_out_fee_min = '0.5';
     }
 
     public function setCashInFee(int $cash_in_fee)
