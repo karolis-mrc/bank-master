@@ -82,7 +82,7 @@ class Controller
         }
     }
 
-    public function operate(string $operation_type, int $amount, string $currency, string $date)
+    public function operate(string $operation_type, int $amount, string $currency, string $date): string
     {
          /**
          *  @ Operation type is whether 'cash_in' or 'cash_out'.
@@ -105,11 +105,11 @@ class Controller
         
         switch ($operation_type) {
             case 'cash_in':
-                $commission_fee = $this->countCashInCommission($amount, $currency);
+                $commission_fee = (float) $this->countCashInCommission($amount, $currency);
                 break;
 
             case 'cash_out':
-                $commission_fee = $this->countCashOutCommission($amount, $currency, $date);
+                $commission_fee = (float) $this->countCashOutCommission($amount, $currency, $date);
                 break;
             
             default:
@@ -117,10 +117,16 @@ class Controller
                 break;
         }
 
-        return number_format(ceil($commission_fee * 100) / 100, 2, '.', '');
+        if ($currency === 'JPY') {
+            $commission_fee = (string) ceil($commission_fee);
+        } else {
+            $commission_fee =  number_format(ceil($commission_fee * 100) / 100, 2, '.', '');
+        }
+
+        return $commission_fee;
     }
 
-    public function countCashInCommission(int $amount, string $currency)
+    public function countCashInCommission(int $amount, string $currency): string
     {
         $math = new Math(4);
         $commission = new Commission();
@@ -140,7 +146,7 @@ class Controller
         return $cash_in_commission;
     }
 
-    public function countCashOutCommission(int $amount, string $currency, string $date)
+    public function countCashOutCommission(int $amount, string $currency, string $date): string
     {
         
         if ($this->operationWeeksDiffer($date)) {
@@ -159,7 +165,7 @@ class Controller
         return $cash_out_commission;
     }
 
-    public function countNaturalCashoutCommission(int $amount, string $currency)
+    public function countNaturalCashoutCommission(int $amount, string $currency): string
     {
         $commission = new Commission();
         $math = new Math(4);
@@ -190,7 +196,7 @@ class Controller
         return $cash_out_commission;
     }
 
-    public function countLegalCashoutCommission(int $amount, string $currency)
+    public function countLegalCashoutCommission(int $amount, string $currency): string
     {
         $commission = new Commission();
         $math = new Math(4);
